@@ -60,6 +60,9 @@ export class IdoPoolDetailViewModel {
   @computed get poolName() {
     return this.pool?.name || ''
   }
+  @computed get tokenName() {
+    return this.pool?.tokenName || ''
+  }
   @computed get tokenAddress() {
     return this.pool?.tokenAddress || ''
   }

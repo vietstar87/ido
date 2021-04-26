@@ -19,7 +19,6 @@ export default class FeaturedPoolItem extends Vue {
   warn = false
 
   @Watch('state', { immediate: true }) onStateChanged(state: PoolState) {
-    console.log(state)
     if (!state) return
     const { ended, started, filled, startDuration, endDuration } = state
     this.warn = true

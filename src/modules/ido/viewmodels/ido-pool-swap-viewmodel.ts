@@ -72,8 +72,11 @@ export class IdoPoolSwapViewModel {
       if (!tokenAmount) throw new Error('BNB is not valid')
       if (tokenAmount > this.maxRemainPurchaseTokens.toUnsafeFloat())
         throw new Error(`BNB must not exceed ${this.maxRemainPurchaseBnb}`)
-      const white = yield contract.isWhitelisted({ address: walletStore.account })
-      if (!white) throw new Error('You are not in whitelist')
+      const hasWhitelist = yield contract.hasWhitelisting()
+      if (hasWhitelist) {
+        const white = yield contract.isWhitelisted({ address: walletStore.account })
+        if (!white) throw new Error('You are not in whitelist')
+      }
 
       const res = yield contract.swap({
         tokenAmount
@@ -130,5 +133,9 @@ export class IdoPoolSwapViewModel {
 
   @computed get connected() {
     return walletStore.connected
+  }
+
+  @computed get poolId() {
+    return this.poolStore?.pool?.id
   }
 }

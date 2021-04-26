@@ -2,7 +2,9 @@
   <div>
     <div class="primary lighten-1 root pb-16">
       <v-container class="d-flex justify-end py-12 px-6">
-        <v-btn depressed rounded color="primary" large outlined class="ml-4" to="/pool/unido">Back to Pool</v-btn>
+        <v-btn depressed rounded color="primary" large outlined class="ml-4" :to="`/pool/${vm.poolId}`"
+          >Back to Pool</v-btn
+        >
       </v-container>
       <div class="px-6">
         <v-card rounded="xl" class="pa-6 mx-auto" max-width="420" elevation="4">
