@@ -60,7 +60,7 @@ export class SnackBarController {
       icon: 'error',
       message,
       color: 'error',
-      timeout: 8000
+      timeout: 5000
     }
     this.show = true
   }

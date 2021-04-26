@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="`/pool/${model.pool.tokenName}`">
+  <router-link :to="`/pool/${model.pool.id}`">
     <card-hover>
       <v-card-title>
         <app-avatar size="48" />

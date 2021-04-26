@@ -1,9 +1,7 @@
-import { localData } from '@/stores/local-data'
 import '@fortawesome/fontawesome-free/css/all.css'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
-import { colors } from 'vuetify/lib'
 // import settingsSvg from '../assets/icons/settings.svg'
 
 Vue.use(Vuetify)

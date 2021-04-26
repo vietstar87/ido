@@ -1,4 +1,4 @@
-import { action, observable, reaction, when } from 'mobx'
+import { action, observable } from 'mobx'
 
 export interface AlertConfig {
   title?: string

@@ -1,6 +1,6 @@
 import moment from 'moment'
 import Vue from 'vue'
-import { get, isNumber, isEmpty, round, trimEnd } from 'lodash-es'
+import { get, isNumber, isEmpty, round } from 'lodash-es'
 import { FixedNumber } from '@ethersproject/bignumber'
 
 export const vueFilterRegister = () => {

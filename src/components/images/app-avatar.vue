@@ -5,8 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Prop, Vue, Watch } from 'vue-property-decorator'
-import _ from 'lodash'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { fileHelpers } from '@/helpers/file-helper'
 import { apiService } from '@/services/api-service'
 

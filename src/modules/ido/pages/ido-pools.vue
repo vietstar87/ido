@@ -33,7 +33,10 @@
       <v-container class="pa-6 pb-16">
         <v-row>
           <v-col cols="12" class="text-h5 font-weight-bold">Upcoming Pools</v-col>
-          <v-col cols="12" sm="6" md="4">
+          <v-col cols="12" sm="6" md="4" v-for="model in vm.upcommingsPools" :key="model.pool.id">
+            <upcoming-pool-item :model="model" />
+          </v-col>
+          <!-- <v-col cols="12" sm="6" md="4">
             <upcoming-pool-item />
           </v-col>
           <v-col cols="12" sm="6" md="4">
@@ -44,12 +47,16 @@
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <upcoming-pool-item />
-          </v-col>
+          </v-col> -->
           <v-col cols="12" class="d-flex justify-end">
             <v-btn color="primary" rounded outlined>Get Notified</v-btn>
           </v-col>
           <v-col cols="12" class="text-h5 font-weight-bold">Featured Pools</v-col>
-          <v-col cols="12" sm="6" md="4" v-for="model in vm.pools" :key="model.pool.id">
+          <v-col cols="12" sm="6" md="4" v-for="model in vm.featuredPools" :key="model.pool.id">
+            <featured-pool-item :model="model" />
+          </v-col>
+          <v-col cols="12" class="text-h5 font-weight-bold">Closed Pools</v-col>
+          <v-col cols="12" sm="6" md="4" v-for="model in vm.closedPools" :key="model.pool.id">
             <featured-pool-item :model="model" />
           </v-col>
         </v-row>

@@ -5,7 +5,7 @@
         <v-btn depressed rounded color="primary" large outlined class="ml-4" to="/pool/unido">Back to Pool</v-btn>
       </v-container>
       <div class="px-6">
-        <v-card rounded="xl" class="pa-4 mx-auto" max-width="420" elevation="4">
+        <v-card rounded="xl" class="pa-6 mx-auto" max-width="420" elevation="4">
           <div class="d-flex justify-space-between align-center">
             <div class="text-h5 font-weight-bold">Swap</div>
           </div>
@@ -40,7 +40,7 @@
           <v-sheet class="pa-4 pb-1 my-4" rounded="xl" outlined>
             <div class="d-flex justify-space-between align-center">
               <div class="text-subtitle-2">To</div>
-              <div class="text-caption">Remaining: {{ vm.remainToken }} tokens</div>
+              <div class="text-caption">Remaining: {{ vm.remainToken | round }} tokens</div>
             </div>
             <v-text-field
               hide-details
@@ -54,8 +54,11 @@
             >
             </v-text-field>
           </v-sheet>
-          <v-btn block depressed rounded color="primary my-4" @click="swap">Swap</v-btn>
-          <div v-if="error" class="error--text text-caption">{{ error }}</div>
+          <v-btn v-if="!vm.connected" block depressed rounded color="primary mt-6" @click="vm.connectWallet()"
+            >Connect Wallet</v-btn
+          >
+          <v-btn v-else block depressed rounded color="primary mt-6" @click="swap">Swap</v-btn>
+          <div v-if="error" class="error--text text-caption mt-2">{{ error }}</div>
         </v-card>
       </div>
     </div>
@@ -65,7 +68,6 @@
 </template>
 
 <script lang="ts">
-import { round } from 'lodash'
 import { Observer } from 'mobx-vue'
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
 import { IdoPoolSwapViewModel } from '../viewmodels/ido-pool-swap-viewmodel'
@@ -103,13 +105,13 @@ export default class IdoPoolDSwap extends Vue {
 
   userChangeBnbCost($event) {
     const amountToken = this.vm.calculateAmountToken($event)
-    this.amountToken = round(amountToken, 6) + ''
+    this.amountToken = amountToken.round(6).toString()
     this.error = ''
   }
 
   async userChangeAmountToken($event) {
     const bnbCost = await this.vm.calculateBnbCost($event)
-    this.bnbCost = round(bnbCost, 6) + ''
+    this.bnbCost = bnbCost.round(6).toString()
     this.error = ''
   }
 }

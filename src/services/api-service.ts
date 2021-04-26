@@ -6,7 +6,7 @@ export type ApiRouteType = 'users' | 'fixed-pools'
 const axios = Axios.create({ baseURL: process.env.VUE_APP_API_ENDPOINT })
 
 export class ApiHandler<T> {
-  constructor(private route: ApiRouteType) { }
+  constructor(private route: ApiRouteType) {}
 
   async count(params?: any): Promise<number> {
     const res = await axios.get(`${this.route}/count`, { params })

@@ -13,8 +13,9 @@ export class PoolStore {
   @observable totaltokens = FixedNumber.from(0)
   @observable poolState?: PoolState
   @observable pool: FixedPoolModel
+  @observable chainId = walletStore.chainId
 
-  contract: FixedSwapContract
+  contract?: FixedSwapContract
   private loaded = false
 
   private _diposers: IReactionDisposer[] = []
@@ -22,10 +23,16 @@ export class PoolStore {
   constructor(pool: FixedPoolModel) {
     this.pool = pool
     const { address: contractAddress, tokenAddress } = pool
-    this.contract = walletStore.app.getFixedSwapContract({
-      tokenAddress,
-      contractAddress
-    })
+    this.totaltokens = FixedNumber.from(pool.totalSupply)
+    this.maxPurchaseBnb = FixedNumber.from(pool.amount)
+    try {
+      this.contract = walletStore.app.getFixedSwapContract({
+        tokenAddress,
+        contractAddress
+      })
+    } catch (err) {
+      //
+    }
     this._diposers = [
       reaction(
         () => this.progress,
@@ -42,10 +49,12 @@ export class PoolStore {
 
   @action.bound loadData() {
     const contract = this.contract
-    contract.individualMaximumAmount().then(val => this.changeState({ maxPurchaseBnb: FixedNumber.from(val) }))
-    contract.getBuyers().then(buyes => this.changeState({ participants: buyes.length }))
-    contract.tokensAllocated().then(val => this.changeState({ purchasedTokens: FixedNumber.from(val) }))
-    contract.tokensForSale().then(val => this.changeState({ totaltokens: FixedNumber.from(val) }))
+    if (contract) {
+      contract.individualMaximumAmount().then(val => this.changeState({ maxPurchaseBnb: FixedNumber.from(val) }))
+      contract.getBuyers().then(buyes => this.changeState({ participants: buyes.length }))
+      contract.tokensAllocated().then(val => this.changeState({ purchasedTokens: FixedNumber.from(val) }))
+      contract.tokensForSale().then(val => this.changeState({ totaltokens: FixedNumber.from(val) }))
+    }
     this.updatePoolState()
   }
 
@@ -64,11 +73,13 @@ export class PoolStore {
     participants?: number
     purchasedTokens?: FixedNumber
     totaltokens?: FixedNumber
+    chainId?: number
   }) {
     if ('maxPurchaseBnb' in changes) this.maxPurchaseBnb = changes.maxPurchaseBnb!
     if ('participants' in changes) this.participants = changes.participants!
     if ('purchasedTokens' in changes) this.purchasedTokens = changes.purchasedTokens!
     if ('totaltokens' in changes) this.totaltokens = changes.totaltokens!
+    if ('chainId' in changes) this.chainId = changes.chainId!
   }
 
   @computed get progress() {

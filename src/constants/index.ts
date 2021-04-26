@@ -1,3 +1,3 @@
-import { JSBI } from '@pancakeswap-libs/sdk'
+import { FixedNumber } from '@ethersproject/bignumber'
 
-export const ZERO = JSBI.BigInt(0)
+export const Zero = FixedNumber.from(0)

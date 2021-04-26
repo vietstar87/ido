@@ -70,7 +70,6 @@
 import { Observer } from 'mobx-vue'
 import { Component, Provide, Vue } from 'vue-property-decorator'
 import { AppProvider } from './app-providers'
-import { snackController } from './components/snack-bar/snack-bar-controller'
 
 @Observer
 @Component({

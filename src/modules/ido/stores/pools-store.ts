@@ -2,7 +2,7 @@ import { FixedPoolModel } from '@/models/fixed-pool-model'
 import { apiService } from '@/services/api-service'
 import { first, mapKeys } from 'lodash'
 import { computed, observable } from 'mobx'
-import { actionAsync, asyncAction } from 'mobx-utils'
+import { asyncAction } from 'mobx-utils'
 import { reactionWithPrev } from '@/helpers/mobx.helper'
 import { PoolStore } from './pool-store'
 
@@ -23,9 +23,8 @@ export class PoolsStore {
     })
   }
 
-  @asyncAction *getPool(tokenName: string) {
-    const pools: FixedPoolModel[] = yield apiService.fixedPool.find({ tokenName }, { _limit: 1 })
-    const pool = first(pools)
+  @asyncAction *getPool(poolId: string) {
+    const pool = yield apiService.fixedPool.findOne(poolId)
     if (pool) {
       let poolStore = this.poolsMap[pool.id!]
       if (poolStore) {

@@ -1,48 +1,43 @@
 import { loadingController } from '@/components/global-loading/global-loading-controller'
 import { snackController } from '@/components/snack-bar/snack-bar-controller'
-import FixedSwapContract, { FixedSwapContractPurchase } from '@/libs/models/FixedSwapContract'
-import { FixedPoolModel } from '@/models/fixed-pool-model'
-import { apiService } from '@/services/api-service'
+import { Zero } from '@/constants'
+import { FixedSwapContractPurchase } from '@/libs/models/FixedSwapContract'
 import { walletStore } from '@/stores/wallet-store'
+import { FixedNumber } from '@ethersproject/bignumber'
 import { sumBy } from 'lodash'
-import { computed, observable, when } from 'mobx'
+import { computed, observable } from 'mobx'
 import { asyncAction } from 'mobx-utils'
+import { PoolStore } from '../stores/pool-store'
+import { poolsStore } from '../stores/pools-store'
 
 export class IdoPoolSwapViewModel {
-  @observable remainToken = ''
+  @observable remainToken = Zero
 
-  @observable swapContract?: FixedSwapContract = undefined
   @observable purchases: FixedSwapContractPurchase[] = []
-  @observable maximumBnb = 0
-  @observable tradeValue = 1
+  @observable maximumBnb = Zero
+  @observable tradeValue = FixedNumber.from(1)
 
-  @observable canAccessPool = false
-  @observable pool?: FixedPoolModel = undefined
+  @observable poolStore?: PoolStore
 
   constructor() {
-    if ((window.ethereum as any)?.isConnected()) {
-      walletStore.connect()
-    }
+    //
   }
 
-  @asyncAction *loadPool(tokenName: string) {
+  @asyncAction *connectWallet() {
+    yield walletStore.connect()
+    this.getContractContrains()
+  }
+
+  @asyncAction *loadPool(poolId: string) {
     loadingController.increaseRequest()
     try {
-      yield when(() => !!walletStore.account)
-      const pool: FixedPoolModel = (yield apiService.fixedPool.find({ tokenName }, { _limit: 1 }))[0]
-      this.pool = pool
-      const contractAddress = pool.address
-      const tokenAddress = pool.tokenAddress
-      // const tokenAddress = '0x91474ed5bfc1082f364c2cd679a1a6023c9a27ab'
-      // const contractAddress = '0x5a7bac1662e126b6dda4991ab54cb0dd4a34e1e4'
-      this.swapContract = walletStore.app.getFixedSwapContract({
-        tokenAddress,
-        contractAddress
-      })
-      this.maximumBnb = yield this.swapContract.individualMaximumAmount()
-      this.tradeValue = yield this.swapContract.tradeValue()
-      this.getContractContrains()
-      this.canAccessPool = true
+      this.poolStore = yield poolsStore.getPool(poolId)
+      const contract = this.poolStore!.contract
+      if (contract) {
+        this.maximumBnb = yield contract.individualMaximumAmount().then(val => FixedNumber.from(val))
+        this.tradeValue = yield contract.tradeValue().then(val => FixedNumber.from(val))
+        this.getContractContrains()
+      }
     } catch (err) {
       snackController.error('You do not have permission to access this pool')
     } finally {
@@ -53,11 +48,13 @@ export class IdoPoolSwapViewModel {
   @asyncAction *getContractContrains() {
     loadingController.increaseRequest()
     try {
-      this.remainToken = yield this.swapContract!.tokensAvailable()
-      const purchaseIds: string[] = yield this.swapContract!.getAddressPurchaseIds({ address: walletStore.account })
-      this.purchases = yield Promise.all(
-        purchaseIds.map(purchase_id => this.swapContract!.getPurchase({ purchase_id }))
-      )
+      const contract = this.poolStore!.contract
+      if (contract) {
+        this.remainToken = yield contract.tokensAvailable().then(val => FixedNumber.from(val))
+        if (!this.connected) return
+        const purchaseIds: string[] = yield contract.getAddressPurchaseIds({ address: walletStore.account })
+        this.purchases = yield Promise.all(purchaseIds.map(purchase_id => contract.getPurchase({ purchase_id })))
+      }
     } finally {
       loadingController.decreaseRequest()
     }
@@ -66,17 +63,19 @@ export class IdoPoolSwapViewModel {
   @asyncAction *swap(tokenAmountText: string) {
     try {
       loadingController.increaseRequest()
-      if (!this.canAccessPool) throw new Error(`You do not have permission to access this pool`)
-      const open = yield this.swapContract!.isOpen()
+      const contract = this.poolStore!.contract!
+      const finished = yield contract.isFinalized()
+      if (finished) throw new Error('This pool is finalized')
+      const open = yield contract.isOpen()
       if (!open) throw new Error('This pool is not opened')
       const tokenAmount = Number.parseInt(tokenAmountText)
       if (!tokenAmount) throw new Error('BNB is not valid')
-      if (tokenAmount > this.maxRemainPurchaseTokens)
+      if (tokenAmount > this.maxRemainPurchaseTokens.toUnsafeFloat())
         throw new Error(`BNB must not exceed ${this.maxRemainPurchaseBnb}`)
-      const white = yield this.swapContract?.isWhitelisted({ address: walletStore.account })
+      const white = yield contract.isWhitelisted({ address: walletStore.account })
       if (!white) throw new Error('You are not in whitelist')
 
-      const res = yield this.swapContract!.swap({
+      const res = yield contract.swap({
         tokenAmount
       })
       if (res?.status) {
@@ -90,19 +89,21 @@ export class IdoPoolSwapViewModel {
 
   async calculateBnbCost(tokenAmount = 0) {
     try {
-      if (isNaN(tokenAmount)) return 0
-      return await this.swapContract!.getETHCostFromTokens({ tokenAmount })
+      const contract = this.poolStore?.contract
+      if (!contract) return Zero
+      if (isNaN(tokenAmount)) return Zero
+      return await contract.getETHCostFromTokens({ tokenAmount }).then(val => FixedNumber.from(val))
     } catch (error) {
-      return 0
+      return Zero
     }
   }
 
   calculateAmountToken(bnbCost = 0) {
     try {
-      if (isNaN(bnbCost)) return 0
-      return bnbCost / this.tradeValue
+      if (isNaN(bnbCost)) return Zero
+      return FixedNumber.from(bnbCost).divUnsafe(this.tradeValue)
     } catch (error) {
-      return 0
+      return Zero
     }
   }
 
@@ -111,12 +112,12 @@ export class IdoPoolSwapViewModel {
   }
 
   @computed get purchasedBnb() {
-    return sumBy(this.purchases, p => +p.ethAmount)
+    return FixedNumber.from(sumBy(this.purchases, p => +p.ethAmount))
   }
 
   @computed get maxRemainPurchaseBnb() {
-    const possibleMax = this.maximumBnb - this.purchasedBnb
-    if (possibleMax > this.bnbBalance) {
+    const possibleMax = this.maximumBnb.subUnsafe(this.purchasedBnb)
+    if (possibleMax.toUnsafeFloat() > this.bnbBalance.toUnsafeFloat()) {
       return this.bnbBalance
     } else {
       return possibleMax
@@ -124,6 +125,10 @@ export class IdoPoolSwapViewModel {
   }
 
   @computed get maxRemainPurchaseTokens() {
-    return this.maxRemainPurchaseBnb / this.tradeValue ?? 0
+    return this.maxRemainPurchaseBnb.divUnsafe(this.tradeValue)
+  }
+
+  @computed get connected() {
+    return walletStore.connected
   }
 }

@@ -18,14 +18,23 @@
                   class="mr-6 mb-6"
                   large
                   :block="$vuetify.breakpoint.xs"
-                  :to="`/pool-join/${vm.tokenName}`"
+                  :to="`/pool-join/${vm.poolId}`"
+                  :disabled="!vm.allowSwap"
                 >
                   <v-icon left>
                     mdi-plus
                   </v-icon>
                   Join Pool
                 </v-btn>
-                <v-btn depressed rounded color="primary" large outlined :block="$vuetify.breakpoint.xs"
+                <v-btn
+                  depressed
+                  rounded
+                  color="primary"
+                  large
+                  outlined
+                  :block="$vuetify.breakpoint.xs"
+                  :href="vm.addressBscUrl"
+                  target="_blank"
                   >View bscscan</v-btn
                 >
               </div>
@@ -91,11 +100,11 @@
                   <div>{{ vm.maxAllocation | round }}</div>
                 </div>
                 <v-divider class="primary" />
-                <div class="d-flex justify-space-between align-center ma-4">
+                <!-- <div class="d-flex justify-space-between align-center ma-4">
                   <div>Min Swap Level</div>
                   <div>Loading</div>
                 </div>
-                <v-divider class="primary" />
+                <v-divider class="primary" /> -->
                 <div class="d-flex justify-space-between align-center ma-4">
                   <div>Access Type</div>
                   <div>{{ vm.accessType }}</div>
@@ -122,14 +131,14 @@
                 <v-divider class="primary" />
                 <div class="d-flex justify-space-between align-center ma-4">
                   <div>Holders</div>
-                  <div>Loading</div>
+                  <div>{{ vm.participants }}</div>
                 </div>
                 <v-divider class="primary" />
-                <div class="d-flex justify-space-between align-center ma-4">
+                <!-- <div class="d-flex justify-space-between align-center ma-4">
                   <div>Transfers</div>
                   <div>Loading</div>
                 </div>
-                <v-divider class="primary" />
+                <v-divider class="primary" /> -->
               </v-col>
             </v-row>
           </div>

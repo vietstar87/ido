@@ -1,25 +1,34 @@
+import { getBscScanLink } from '@/helpers'
+import { walletStore } from '@/stores/wallet-store'
 import { computed, observable } from 'mobx'
 import { asyncAction } from 'mobx-utils'
 import { formatDuration } from '../business/swap-contract.business'
-import { PoolStore } from '../stores/pool-store'
 import { poolsStore } from '../stores/pools-store'
 
 export class IdoPoolDetailViewModel {
-  @observable tokenName = '';
+  @observable poolid = '';
 
-  @asyncAction *loadPool(tokenName: string) {
-    this.tokenName = tokenName
-    yield poolsStore.getPool(tokenName)
+  @asyncAction *loadPool(poolid: string) {
+    this.poolid = poolid
+    yield poolsStore.getPool(poolid)
     this.poolStore?.loadData()
   }
 
+  @computed get addressBscUrl() {
+    if (!this.contractAddress) return ''
+    return getBscScanLink(walletStore.chainId, this.contractAddress, 'address')
+  }
+
   @computed get poolStore() {
-    if (!this.tokenName) return null
-    return poolsStore.pools.find(p => p.pool.tokenName === this.tokenName)
+    if (!this.poolid) return null
+    return poolsStore.pools.find(p => p.pool.id === this.poolid)
   }
 
   @computed get pool() {
     return this.poolStore?.pool
+  }
+  @computed get poolId() {
+    return this.poolStore?.pool.id
   }
   @computed get minAllocation() {
     return this.pool?.minAllocation ?? 'No minimum'
@@ -71,5 +80,13 @@ export class IdoPoolDetailViewModel {
   }
   @computed get progress() {
     return this.poolStore?.progress
+  }
+  @computed get participants() {
+    return this.poolStore?.participants
+  }
+
+  @computed get allowSwap() {
+    const { ended, started } = this.poolState || {}
+    return started && !ended
   }
 }
