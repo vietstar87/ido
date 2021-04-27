@@ -32,7 +32,16 @@
 
           <v-spacer></v-spacer>
           <div class="d-none d-sm-flex align-center">
-            <v-btn depressed rounded color="primary" large outlined :to="`/swap`">B-Swap</v-btn>
+            <v-btn
+              depressed
+              rounded
+              color="primary"
+              large
+              outlined
+              :href="`https://swap.bsclaunch.org/`"
+              target="_blank"
+              >B-Swap</v-btn
+            >
             <v-btn depressed rounded color="primary" large outlined :to="`/pools`" class="ml-4">B-Launch</v-btn>
             <v-btn depressed rounded color="primary" large outlined class="ml-4" @click="farm">B-Farm</v-btn>
             <v-btn

@@ -123,7 +123,7 @@ export default class IdoPoolDSwap extends Vue {
 .root {
   height: 100%;
   width: 100%;
-  background: url('../../../assets/images/background.svg') repeat;
+  background: url('../../../assets/images/background.svg') repeat-y;
 }
 .input {
   font-weight: 600;
