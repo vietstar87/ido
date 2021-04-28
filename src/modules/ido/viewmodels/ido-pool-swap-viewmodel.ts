@@ -115,7 +115,7 @@ export class IdoPoolSwapViewModel {
   }
 
   @computed get purchasedBnb() {
-    return FixedNumber.from(sumBy(this.purchases, p => +p.ethAmount))
+    return this.purchases.reduce((pre, cur) => pre.addUnsafe(FixedNumber.from(cur.ethAmount)), FixedNumber.from('0'))
   }
 
   @computed get maxRemainPurchaseBnb() {
