@@ -124,6 +124,7 @@ export default class IdoPoolDSwap extends Vue {
   height: 100%;
   width: 100%;
   background: url('../../../assets/images/background.svg') repeat-y;
+  background-position: center top;
 }
 .input {
   font-weight: 600;

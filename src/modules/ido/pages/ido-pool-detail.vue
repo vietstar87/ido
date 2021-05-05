@@ -169,8 +169,8 @@
           </div>
         </v-tab-item>
       </v-tabs-items>
-      <company-footer class="mt-16" />
     </v-container>
+    <company-footer class="mt-16" />
   </div>
 </template>
 

@@ -21,7 +21,7 @@ export class IdoPoolDetailViewModel {
 
   @computed get poolStore() {
     if (!this.poolid) return null
-    return poolsStore.pools.find(p => p.pool.id === this.poolid)
+    return poolsStore.validPools.find(p => p.pool.id === this.poolid)
   }
 
   @computed get pool() {

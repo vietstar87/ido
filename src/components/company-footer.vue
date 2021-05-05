@@ -6,7 +6,7 @@
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="../assets/logo.svg"
+          :src="require(`../assets/logo-with-name.${providers.themeType}.svg`)"
           transition="scale-transition"
           width="180"
         />
@@ -66,8 +66,16 @@
   </v-container>
 </template>
 
-<script>
-export default {}
+<script lang="ts">
+import { Observer } from 'mobx-vue'
+import { Component, Vue, Inject } from 'vue-property-decorator'
+import { AppProvider } from '@/app-providers'
+
+@Observer
+@Component
+export default class Footer extends Vue {
+  @Inject() providers!: AppProvider
+}
 </script>
 
 <style></style>

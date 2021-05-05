@@ -7,12 +7,22 @@ export class IdoPoolsViewModel {
   }
 
   @computed get upcommingsPools() {
-    return poolsStore.pools.filter(p => moment(p.pool.startDate).isAfter(moment()))
+    return poolsStore.validPools.filter(p => moment(p.pool.startDate).isAfter(moment()))
   }
   @computed get featuredPools() {
-    return poolsStore.pools.filter(p => moment().isBetween(moment(p.pool.startDate), moment(p.pool.endDate)))
+    return poolsStore.validPools.filter(p => moment().isBetween(moment(p.pool.startDate), moment(p.pool.endDate)))
   }
   @computed get closedPools() {
-    return poolsStore.pools.filter(p => moment(p.pool.endDate).isBefore(moment()))
+    return poolsStore.validPools.filter(p => moment(p.pool.endDate).isBefore(moment()))
+  }
+
+  @computed get hasUpcommings() {
+    return !!this.upcommingsPools.length
+  }
+  @computed get hasFeaturedPools() {
+    return !!this.featuredPools.length
+  }
+  @computed get hasClosedPools() {
+    return !!this.closedPools.length
   }
 }

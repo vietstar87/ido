@@ -26,6 +26,24 @@ componentRegister()
 directiveRegister()
 vueFilterRegister()
 
+const lightFavicon = document.querySelector('link#favicon-light')!
+const darkFavicon = document.querySelector('link#favicon-dark')!
+
+const systemDarkMatcher = window.matchMedia('(prefers-color-scheme: dark)')
+const onSystemDarkMatcherChanged = () => {
+  const dark = systemDarkMatcher.matches
+  console.log('dark=', dark)
+  if (dark) {
+    lightFavicon.remove()
+    document.head.append(darkFavicon)
+  } else {
+    darkFavicon.remove()
+    document.head.append(lightFavicon)
+  }
+}
+systemDarkMatcher.onchange = ev => onSystemDarkMatcherChanged()
+onSystemDarkMatcherChanged()
+
 new Vue({
   router,
   vuetify,

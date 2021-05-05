@@ -6,6 +6,7 @@ export interface FixedPoolModel {
   accessType?: string
   amount?: string
   ratio?: number
+  chainId?: number
   totalSupply?: number
   totalRaise?: number
   tokenAddress?: string

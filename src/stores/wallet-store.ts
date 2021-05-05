@@ -1,4 +1,4 @@
-import { computed, observable } from 'mobx'
+import { computed, observable, runInAction } from 'mobx'
 import { asyncAction } from 'mobx-utils'
 import Application from '@/libs/models'
 import Web3 from 'web3'
@@ -20,11 +20,20 @@ export class WalletStore {
   private _bnbBalanceSubscription: Subscription | undefined
 
   constructor() {
+    //
+  }
+
+  start() {
     this.app.start()
     this.web3 = this.app.web3
-    if (this.account) {
-      this.connect()
-    }
+    this.web3?.eth.getAccounts(() => {
+      runInAction(() => {
+        this.account = this.ethereum?.selectedAddress
+        if (this.account) {
+          this.connect()
+        }
+      })
+    })
   }
 
   @asyncAction *connect() {

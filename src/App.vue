@@ -24,7 +24,7 @@
               alt="Vuetify Logo"
               class="shrink mr-2"
               contain
-              src="./assets/logo.svg"
+              :src="require(`./assets/logo-with-name.${providers.themeType}.svg`)"
               transition="scale-transition"
               width="130"
             />
@@ -78,7 +78,8 @@
 <script lang="ts">
 import { Observer } from 'mobx-vue'
 import { Component, Provide, Vue } from 'vue-property-decorator'
-import { AppProvider } from './app-providers'
+import { AppProvider, appProvider } from './app-providers'
+import { walletStore } from './stores/wallet-store'
 
 @Observer
 @Component({
@@ -89,12 +90,13 @@ import { AppProvider } from './app-providers'
   }
 })
 export default class App extends Vue {
-  @Provide() providers = new AppProvider()
+  @Provide() providers: AppProvider = appProvider
 
   wallet = this.providers.wallet
 
   mounted() {
     this.providers.router = this.$router
+    walletStore.start()
   }
 
   drawer = false

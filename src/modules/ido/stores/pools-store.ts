@@ -5,18 +5,19 @@ import { computed, observable } from 'mobx'
 import { asyncAction } from 'mobx-utils'
 import { reactionWithPrev } from '@/helpers/mobx.helper'
 import { PoolStore } from './pool-store'
+import { walletStore } from '@/stores/wallet-store'
 
 export class PoolsStore {
-  @observable pools: PoolStore[] = []
+  @observable allPools: PoolStore[] = []
 
   constructor() {
-    reactionWithPrev(() => this.pools, this._handlePoolsChanged)
+    reactionWithPrev(() => this.validPools, this._handlePoolsChanged)
   }
 
   //#region ACTIONS
   @asyncAction *fetchPools() {
     const pools: FixedPoolModel[] = yield apiService.fixedPool.find()
-    this.pools = pools.map(p => {
+    this.allPools = pools.map(p => {
       const pool = this.poolsMap[p.id!]
       pool?.changeModel(p)
       return pool || new PoolStore(p)
@@ -31,7 +32,7 @@ export class PoolsStore {
         poolStore.changeModel(pool)
       } else {
         poolStore = new PoolStore(pool)
-        this.pools.push(poolStore)
+        this.validPools.push(poolStore)
       }
       return poolStore
     }
@@ -49,7 +50,10 @@ export class PoolsStore {
 
   //#region COMPUTEDS
   @computed get poolsMap(): { [id: string]: PoolStore } {
-    return mapKeys(this.pools, p => p.pool.id)
+    return mapKeys(this.validPools, p => p.pool.id)
+  }
+  @computed get validPools() {
+    return this.allPools.filter(p => p.pool.chainId === walletStore.chainId)
   }
   //#endregion
 }

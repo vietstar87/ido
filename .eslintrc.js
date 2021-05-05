@@ -23,7 +23,7 @@ module.exports = {
     camelcase: 'off',
     '@typescript-eslint/camelcase': ['off'],
     strictNullChecks: 'off',
-    "@typescript-eslint/ban-ts-ignore": "off",
-    "noImplicitAny": 'off'
+    '@typescript-eslint/ban-ts-ignore': 'off',
+    noImplicitAny: 'off'
   }
 }
